@@ -1,0 +1,225 @@
+#include<opencv2\opencv.hpp>
+#include<iostream>
+#include<quickopencv.h>
+
+  
+
+using namespace cv;
+using namespace std;
+  
+
+class QuickDemo {
+public:
+	void colorSpace_Demo(Mat &image);
+	void mat_creation_demo(Mat &image);
+	void piex_visit_demo(Mat &image);
+	void operators_demo(Mat& image);
+	void track_bar_demo(Mat& image);
+	void key_demo(Mat& image);
+	void color_style_demo(Mat& image);
+	void channels_demo(Mat& image);
+    };
+
+int main(int arg,char** argv)
+{
+	Mat src = imread("D:\\open\\opencv\\sources\\samples\\wp8\\OpenCVXaml\\OpenCVXaml\\Assets\\Lena.png");                            
+	//namedWindow("input", WINDOW_FREERATIO);
+	imshow("input", src);
+		QuickDemo qd;
+	qd.mwdia_demo(src);
+		waitKey(0);
+	destroyAllWindows();
+	return 0;
+}
+
+void QuickDemo::colorSpace_Demo(Mat& image)
+{
+	Mat gray, hsv;
+	cvtColor(image, hsv, COLOR_BGR2HSV);
+    cvtColor(image, gray, COLOR_BGR2GRAY);
+	imshow("HSV", hsv);
+	imshow("灰度", gray);
+	/*imwrite("D:\\hsv.png", hsv);
+	imwrite("D:\\gray.png", gray);*/
+}
+
+void QuickDemo::mat_creation_demo(Mat& image)
+{
+	Mat m1, m2;
+	//克隆
+	m1 = image.clone();
+	//复制
+	image.copyTo(m2);
+	//创建空白图像
+	Mat m3 = Mat::zeros(Size(500,500), CV_8UC3);
+	//为三个通道赋值 可改变图像颜色 B G R
+	m3 = Scalar(0, 0, 255);
+	//获取宽度，高度，通道数
+	std::cout << "width:" << m3.cols << "height:" << m3.rows << "channels:" << m3.channels() << std::endl;
+	//std::cout << m3 << std::endl;
+	//imshow("图像", m3);
+	Mat m4;
+	m4 = m3.clone();
+	m4 = Scalar(0, 255, 255);
+	imshow("图像", m3);
+	imshow("图像4", m4);
+	
+
+	
+}
+void QuickDemo::piex_visit_demo(Mat& image)
+{
+	int w = image.cols;
+	int h = image.rows;
+	int dims = image .channels();
+	for (int row = 0; row < h; row++)
+	{
+		for (int col = 0; col < w; col++)
+		{
+			if (dims == 1)
+			{//单通道灰度图像
+				int pv = image.at<uchar>(row, col);
+				image.at<uchar>(row, col) = 255 - pv;
+			}
+			if (dims == 3)
+			{//彩色图像
+			 Vec3b bgr=	image.at<Vec3b>(row, col);
+			 image.at<Vec3b>(row, col)[0] = 255 - bgr[0];
+			 image.at<Vec3b>(row, col)[1] = 255 - bgr[1];
+			 image.at<Vec3b>(row, col)[2] = 255 - bgr[2];
+			}
+		}
+
+	}
+	imshow("像素读写演示",image);
+ }
+
+void QuickDemo::operators_demo(Mat& image)
+{
+	Mat dst;
+	dst = image + Scalar(50, 50, 50);
+	//add(图片一,图片二，结果图像)；
+	//divide 除
+	//subtract 减
+	//multiply 乘
+	imshow("算术操作",dst);
+}
+
+
+
+
+Mat dst, m, src;
+int lightness = 60;
+static void on_track(int, void*)
+{
+	m = Scalar(lightness, lightness, lightness);
+	add(src, m, dst);
+	imshow("亮度调整", dst);
+
+}
+
+void QuickDemo::track_bar_demo(Mat& image)
+{
+	namedWindow("亮度调整", WINDOW_FREERATIO);
+	dst = Mat::zeros(image.size(), image.type());
+	m = Mat::zeros(image.size(), image.type());
+	src = image;
+	int max_value = 100;//最大亮度
+//	int lightness = 50;//初始亮度
+	createTrackbar("Value Bar:", "亮度调整", &lightness, max_value, on_track);
+	on_track(50,0);
+}
+
+void  QuickDemo::key_demo(Mat& image)
+{
+	Mat dst=Mat::zeros(image.size(),image.type());
+	while (true)
+	{
+		int c = waitKey(50);
+		if (c == 27)//esc
+		{
+			break;
+		}
+		if (c == 49)//1
+		{
+			std::cout << "you enter 1" << std::endl;
+			cvtColor(image, dst, COLOR_BGR2GRAY);
+
+		}
+		if (c == 50)
+		{
+			std::cout << "you enter 2" << std::endl;
+			cvtColor(image, dst,COLOR_BGR2HSV);
+		}
+		if (c == 51)
+		{
+			std::cout << "you enter 3" << std::endl;
+			dst = Scalar(50, 50, 50);
+			add(image, dst, dst);
+		}
+		imshow("键盘响应",dst);
+	}
+}
+
+
+void QuickDemo::color_style_demo(Mat& image)
+{
+	int colormap[] = {
+	COLORMAP_AUTUMN ,
+		COLORMAP_BONE,
+		COLORMAP_JET ,
+		COLORMAP_WINTER,
+		COLORMAP_RAINBOW,
+		COLORMAP_OCEAN ,
+		COLORMAP_SUMMER ,
+		COLORMAP_SPRING,
+		COLORMAP_COOL ,
+		COLORMAP_HSV ,
+		COLORMAP_PINK ,
+		COLORMAP_HOT ,
+		COLORMAP_PARULA,
+		COLORMAP_MAGMA ,
+		COLORMAP_INFERNO ,
+		COLORMAP_PLASMA ,
+		COLORMAP_VIRIDIS ,
+		COLORMAP_CIVIDIS ,
+		COLORMAP_TWILIGHT ,
+		COLORMAP_TWILIGHT_SHIFTED,
+		COLORMAP_TURBO ,
+		COLORMAP_DEEPGREEN
+	};
+	Mat dst;
+	int index = 0;
+	while (true)
+	{
+		int c = waitKey(2000);
+		if (c == 27)//esc
+		{
+			break;
+		}
+		applyColorMap(image, dst, colormap[index%19]);
+		index++;
+		imshow("颜色风格",dst);
+		if (c == 49)
+		{
+			imwrite("D:\\tupian2.png", dst);
+		}
+	}
+}
+
+
+void QuickDemo::channels_demo(Mat& image)
+{
+	std::vector<Mat>mv;
+	split(image, mv);
+	imshow("蓝色", mv[0]);
+	imshow("绿色", mv[1]);
+	imshow("红色", mv[2]);
+	Mat dst;
+	mv[0] = 0;
+	mv[2] = 0;
+	merge(mv, dst);
+	imshow("绿色", dst);
+
+}
+
